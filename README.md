@@ -41,15 +41,15 @@ aplicando los principios de DevSecOps.
 
 NOTA: usar para probar --> base_url = http://54.191.21.96:8080
 
-- GET /api/employees → listar empleados
-- GET /api/employees/{id} → obtener empleado por ID
-- POST /api/employees → crear empleado
+- GET /employees → listar empleados
+- GET /employees/{id} → obtener empleado por ID
+- POST /employees → crear empleado
     - se implementa  solucion que permite registrar multiples empleados con un mecanismo de validacion de duplicados 
     - usando el nombre completo y la fecha de nacimiento en caso de existir y estar inactivo se actualiza y se activa nuevamnete
-- PUT /api/employees/{id} → actualizar empleado
+- PUT /employees/{id} → actualizar empleado
     - en este servicio se implemento un mecanismo de validacion por campo al no ser opcionales se realizan 
     - validaciones solo de los que tienen informacion, ademas se hace tratado por espacios vacios y se valida que exista el id del empleado a actualizar
-- DELETE /api/employees/{id} → eliminar empleado
+- DELETE /employees/{id} → eliminar empleado
   -  se valida existencia previa
 
 ## Swagger UI
