@@ -1,10 +1,6 @@
 package com.employee.employee.contoller;
 
-import com.employee.employee.dto.EmployeeCreateRequest;
-import com.employee.employee.dto.EmployeeInsertRequest;
-import com.employee.employee.dto.EmployeeInsertResponse;
-import com.employee.employee.dto.EmployeeUpdateRequest;
-import com.employee.employee.entity.EmployeeEntity;
+import com.employee.employee.dto.*;
 import com.employee.employee.exception.InvalidEmployeeDataException;
 import com.employee.employee.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +21,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-
 @Log4j2
 @RestController
 @RequiredArgsConstructor
@@ -34,35 +29,38 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
+    /**
+     ** The exercise doesn't mention it, but the most convenient thing would be for it to be paginated according to the number of records it might have.
+    * */
     @Operation(summary = "Get all employees")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Employees retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeEntity.class))),
+            @ApiResponse(responseCode = "200", description = "Employees retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
     })
     @GetMapping(produces = "application/json")
-    public List<EmployeeEntity> getAllEmployees() {
+    public List<EmployeeResponse> getAllEmployees() {
         return employeeService.getAllEmployees();
     }
 
     @Operation(summary = "Get employee by ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Employee found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeEntity.class))),
+            @ApiResponse(responseCode = "200", description = "Employee found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponse.class))),
             @ApiResponse(responseCode = "404", description = "Employee not found", content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
     })
     @GetMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<EmployeeEntity> getEmployeeById(@PathVariable Long id) {
+    public ResponseEntity<EmployeeResponse> getEmployeeById(@PathVariable Long id) {
         return ResponseEntity.ok(employeeService.getEmployeeById(id));
     }
 
     @Operation(summary = "Create a new employee")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Employee successfully created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeEntity.class))),
+            @ApiResponse(responseCode = "201", description = "Employee successfully created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Datos del nuevo empleado", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeEntity.class))
+            description = "Datos del nuevo empleado", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponse.class))
     )
     @PostMapping(produces = "application/json")
     public ResponseEntity<EmployeeInsertResponse> createEmployees( @Valid @RequestBody EmployeeCreateRequest request) {
@@ -73,16 +71,16 @@ public class EmployeeController {
 
     @Operation(summary = "Update an existing employee")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Employee updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeEntity.class))),
+            @ApiResponse(responseCode = "200", description = "Employee updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "404", description = "Employee not found", content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Updated employee data", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeEntity.class))
+            description = "Updated employee data", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponse.class))
     )
     @PutMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<EmployeeEntity> updateEmployee(@PathVariable Long id, @RequestBody EmployeeUpdateRequest request) {
+    public ResponseEntity<EmployeeResponse> updateEmployee(@PathVariable Long id, @RequestBody EmployeeUpdateRequest request) {
         if (Objects.isNull(request) || !request.hasUpdates()) {
             throw new InvalidEmployeeDataException("At least one field must be provided for update");
         }
@@ -101,14 +99,18 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 
+
+    /**
+     ** The exercise doesn't mention it, but the most convenient thing would be for it to be paginated according to the number of records it might have.
+     * */
     @Operation(summary = "Search employees by name")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Search results", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeEntity.class))),
+            @ApiResponse(responseCode = "200", description = "Search results", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponse.class))),
             @ApiResponse(responseCode = "404", description = "No employees found", content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
     })
     @GetMapping(value = "/search", produces = "application/json")
-    public List<EmployeeEntity> searchByName(@RequestParam String name) {
+    public List<EmployeeResponse> searchByName(@RequestParam String name) {
         return employeeService.searchByName(name);
     }
 }

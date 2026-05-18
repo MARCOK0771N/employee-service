@@ -2,55 +2,47 @@ package com.employee.employee.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.*;
 import java.time.LocalDate;
 
-import static com.employee.employee.utils.EmployeeConstants.*;
-
-
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class EmployeeInsertRequest {
+@NoArgsConstructor
+@Builder
+public class EmployeeResponse {
+
+    @Schema(description = "Employee unique identifier")
+    private Long id;
 
     @Schema(description = "First name")
-    @NotBlank(message = "Name is mandatory")
     private String name;
 
-    /**
-    ** this fields may not be mandatory
-    * */
     @Schema(description = "Second name")
     private String secondName;
+
+    @Schema(description = "Last name")
+    private String lastName;
+
     @Schema(description = "Second last name")
     private String secondLastName;
 
-    @Schema(description = "Last name")
-    @NotBlank(message = "Last name is mandatory")
-    private String lastName;
-
     @Schema(description = "Age of the employee")
-    @Min(value = 18, message = MSG_AGE_ERROR)
-    @Max(value = 110, message = MSG_AGE_ERROR)
     private Integer age;
 
     @Schema(description = "Gender")
-    @Pattern(regexp = GENDER, message = MSG_GENDER_ERROR)
     private String gender;
 
-    @Schema(description = "Birth date in dd-MM-yyyy format")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    @NotNull(message = "Birth date is required")
+    @Schema(description = "Birth date in dd-MM-yyyy format")
     private LocalDate birthDate;
 
     @Schema(description = "Position")
-    @NotBlank(message = "Position is mandatory")
     private String position;
 
     @Schema(description = "Active status")
-    @NotNull(message = "Active status is required")
     private Boolean active;
 }

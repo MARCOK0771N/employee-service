@@ -1,12 +1,12 @@
 package com.employee.employee.service;
 
-import com.employee.employee.dto.EmployeeInsertError;
-import com.employee.employee.dto.EmployeeInsertRequest;
-import com.employee.employee.dto.EmployeeInsertResponse;
-import com.employee.employee.dto.EmployeeUpdateRequest;
+import com.employee.employee.dto.*;
 import com.employee.employee.entity.EmployeeEntity;
 import com.employee.employee.exception.EmployeeNotFoundException;
 import com.employee.employee.repository.EmployeeRepository;
+import com.employee.employee.utils.EmployeeConstants;
+import com.employee.employee.utils.Transform;
+import com.employee.employee.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -16,9 +16,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
+
+import static com.employee.employee.utils.EmployeeConstants.*;
 
 @Log4j2
 @Service
@@ -29,21 +28,25 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<EmployeeEntity> getAllEmployees() {
-        log.info("Fetching all employees from database");
+    public List<EmployeeResponse> getAllEmployees() {
+        log.info(EmployeeConstants.LOG_FETCH_ALL);
         List<EmployeeEntity> employees = employeeRepository.findAll();
         log.info("Total employees fetched: {}", employees.size());
-        return employees;
+        return employees.stream().map(Transform.toResponse).toList();
     }
-
 
     @Transactional(readOnly = true)
     @Override
-    public EmployeeEntity getEmployeeById(Long id) {
-        log.info("Fetching employee with id={}", id);
+    public EmployeeResponse getEmployeeById(Long id) {
+        return Transform.toResponse.apply(getEmployeeEntityById(id));
+    }
+
+    private EmployeeEntity getEmployeeEntityById(Long id) {
+        log.info(LOG_FETCH_BY_ID, id);
         return employeeRepository.findById(id).orElseThrow(()-> new EmployeeNotFoundException(id));
     }
 
+    @Transactional
     @Override
     public EmployeeInsertResponse saveEmployees(List<EmployeeInsertRequest> request) {
 
@@ -58,10 +61,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
             try {
 
-                String name = cleanParamQuery.apply(req.getName());
-                String secondName = cleanParamQuery.apply(req.getSecondName());
-                String lastName = cleanParamQuery.apply(req.getLastName());
-                String secondLastName = cleanParamQuery.apply(req.getSecondLastName());
+                String name = Transform.cleanParamQuery.apply(req.getName());
+                String secondName = Transform.cleanParamQuery.apply(req.getSecondName());
+                String lastName = Transform.cleanParamQuery.apply(req.getLastName());
+                String secondLastName = Transform.cleanParamQuery.apply(req.getSecondLastName());
 
                 Optional<EmployeeEntity> existingOpt = employeeRepository.findByNameAndSecondNameAndLastNameAndSecondLastNameAndBirthDate( name, secondName, lastName, secondLastName, req.getBirthDate());
 
@@ -76,81 +79,63 @@ public class EmployeeServiceImpl implements EmployeeService {
                         log.info("Reactivated employee id={}", existing.getId());
                     } else {
                         errors.add(new EmployeeInsertError(req, "Duplicate employee already active"));
-                        log.warn("Duplicate active employee: {} {}", req.getName(), req.getLastName());
+                        log.warn(EmployeeConstants.ERROR_DUPLICATE_ACTIVE, req.getName(), req.getLastName());
                     }
                     continue;
                 }
 
-                EmployeeEntity employee = toEntity.apply(req);
+                EmployeeEntity employee = Transform.toEntity.apply(req);
                 inserted.add(employeeRepository.saveAndFlush(employee));
                 log.info("Inserted new employee: {} {}", employee.getName(), employee.getLastName());
 
             } catch (Exception e) {
                 errors.add(new EmployeeInsertError(req, "Unexpected error: " + e.getMessage()));
-                log.error("Error inserting employee {} {}: {}", req.getName(), req.getLastName(), e.getMessage(), e);
+                log.error(EmployeeConstants.ERROR_UNEXPECTED, req.getName(), req.getLastName(), e.getMessage(), e);
             }
         }
 
         return EmployeeInsertResponse.builder().inserted(inserted).errors(errors).build();
     }
 
+
+    @Transactional
     @Override
-    public EmployeeEntity updateEmployee(Long id, EmployeeUpdateRequest request) {
+    public EmployeeResponse updateEmployee(Long id, EmployeeUpdateRequest request) {
 
         log.info("Updating employee id={} with request={}", id, request);
 
-        EmployeeEntity existing = getEmployeeById(id);
+        EmployeeEntity existing = this.getEmployeeEntityById(id);
 
         log.debug("Applying updates to employee id={}", id);
 
         Optional.ofNullable(request.getActive()).ifPresent(existing::setActive);
-        Optional.ofNullable(request.getAge()).ifPresent(existing::setAge);
-        Optional.ofNullable(request.getGender()).map(cleanParamQuery).ifPresent(existing::setGender);
-        Optional.ofNullable(request.getName()).map(cleanParamQuery).ifPresent(existing::setName);
-        Optional.ofNullable(request.getSecondName()).map(cleanParamQuery).ifPresent(existing::setSecondName);
-        Optional.ofNullable(request.getLastName()).map(cleanParamQuery).ifPresent(existing::setLastName);
-        Optional.ofNullable(request.getSecondLastName()).map(cleanParamQuery).ifPresent(existing::setSecondLastName);
+        Optional.ofNullable(request.getAge()).map(ValidationUtils.ageValidator).ifPresent(existing::setAge);
+        Optional.ofNullable(request.getGender()).map(Transform.cleanParamQuery).map(ValidationUtils.genderValidator).ifPresent(existing::setGender);
+        Optional.ofNullable(request.getName()).map(Transform.cleanParamQuery).ifPresent(existing::setName);
+        Optional.ofNullable(request.getSecondName()).map(Transform.cleanParamQuery).ifPresent(existing::setSecondName);
+        Optional.ofNullable(request.getLastName()).map(Transform.cleanParamQuery).ifPresent(existing::setLastName);
+        Optional.ofNullable(request.getSecondLastName()).map(Transform.cleanParamQuery).ifPresent(existing::setSecondLastName);
         Optional.ofNullable(request.getBirthDate()).ifPresent(existing::setBirthDate);
-        Optional.ofNullable(request.getPosition()).map(cleanParamQuery).ifPresent(existing::setPosition);
+        Optional.ofNullable(request.getPosition()).map(Transform.cleanParamQuery).ifPresent(existing::setPosition);
 
         EmployeeEntity updated = employeeRepository.saveAndFlush(existing);
-        log.info("Employee updated successfully id={}", updated.getId());
-        return updated;
+        log.info(LOG_UPDATE_SUCCESS, updated.getId());
+        return Transform.toResponse.apply(updated);
     }
 
+    @Transactional
     @Override
     public void deleteEmployee(Long id) {
         log.info("Deleting employee id={}", id);
-        getEmployeeById(id);
+        this.getEmployeeEntityById(id);
         employeeRepository.deleteById(id);
-        log.info("Employee deleted successfully id={}", id);
+        log.info(LOG_DELETE_SUCCESS, id);
     }
-
 
     @Transactional(readOnly = true)
     @Override
-    public List<EmployeeEntity> searchByName(String name) {
-        return employeeRepository.findByNameContainingIgnoreCase(name);
+    public List<EmployeeResponse> searchByName(String name) {
+        return employeeRepository.findByNameContainingIgnoreCase(name).stream().map(Transform.toResponse).toList();
     }
-
-    private final UnaryOperator<String> cleanParamQuery = value ->
-            Optional.ofNullable(value).map(String::trim).filter(Predicate.not(String::isEmpty)).orElse(null);
-
-    private final Function<EmployeeInsertRequest, EmployeeEntity> toEntity =
-            req -> EmployeeEntity.builder()
-                    .name(cleanParamQuery.apply(req.getName()))
-                    .secondName(cleanParamQuery.apply(req.getSecondName()))
-                    .lastName(cleanParamQuery.apply(req.getLastName()))
-                    .secondLastName(cleanParamQuery.apply(req.getSecondLastName()))
-                    .age(req.getAge())
-                    .gender(req.getGender())
-                    .birthDate(req.getBirthDate())
-                    .position(req.getPosition())
-                    .active(req.getActive())
-                    .build();
-
-
-
-
 
 }

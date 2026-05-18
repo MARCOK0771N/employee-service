@@ -42,7 +42,7 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:mysql://employeesdb.cz0g40iokdg1.us-west-2.rds.amazonaws.com:3306/employeesdb
+    url: jdbc:mysql://invexdb.cz0g40iokdg1.us-west-2.rds.amazonaws.com:3306/employeesdb
     username: admin
     password: 1nv3x2026
   jpa:

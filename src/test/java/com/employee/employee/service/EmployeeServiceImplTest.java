@@ -2,6 +2,7 @@ package com.employee.employee.service;
 
 import com.employee.employee.dto.EmployeeInsertRequest;
 import com.employee.employee.dto.EmployeeInsertResponse;
+import com.employee.employee.dto.EmployeeResponse;
 import com.employee.employee.dto.EmployeeUpdateRequest;
 import com.employee.employee.entity.EmployeeEntity;
 import com.employee.employee.exception.EmployeeNotFoundException;
@@ -38,7 +39,7 @@ class EmployeeServiceImplTest {
 
         when(repository.findById(1L)).thenReturn(Optional.of(emp));
 
-        EmployeeEntity result = employeeService.getEmployeeById(1L);
+        EmployeeResponse result = employeeService.getEmployeeById(1L);
 
         assertEquals("Marco", result.getName());
         verify(repository, times(1)).findById(1L);
@@ -62,7 +63,7 @@ class EmployeeServiceImplTest {
 
         when(repository.findAll()).thenReturn(List.of(emp1, emp2));
 
-        List<EmployeeEntity> result = employeeService.getAllEmployees();
+        List<EmployeeResponse> result = employeeService.getAllEmployees();
 
         assertEquals(2, result.size());
         assertEquals("Marco", result.get(0).getName());
@@ -158,7 +159,7 @@ class EmployeeServiceImplTest {
         when(repository.findById(id)).thenReturn(Optional.of(existing));
         when(repository.saveAndFlush(any(EmployeeEntity.class))).thenReturn(existing);
 
-        EmployeeEntity result = employeeService.updateEmployee(id, employeeUpdateRequest);
+        EmployeeResponse result = employeeService.updateEmployee(id, employeeUpdateRequest);
 
         assertEquals("Senior Java Developer", result.getPosition());
         verify(repository, times(1)).findById(id);
@@ -178,7 +179,7 @@ class EmployeeServiceImplTest {
 
         when(repository.findByNameContainingIgnoreCase(name)).thenReturn(List.of(emp));
 
-        List<EmployeeEntity> result = employeeService.searchByName(name);
+        List<EmployeeResponse> result = employeeService.searchByName(name);
 
         assertEquals(1, result.size());
         assertEquals("Marco", result.get(0).getName());
