@@ -4,6 +4,7 @@ import com.employee.employee.dto.*;
 import com.employee.employee.exception.InvalidEmployeeDataException;
 import com.employee.employee.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -55,7 +56,7 @@ public class EmployeeController {
 
     @Operation(summary = "Create a new employee")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Employee successfully created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponse.class))),
+            @ApiResponse(responseCode = "201", description = "Employee successfully created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeInsertResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
     })
@@ -77,7 +78,7 @@ public class EmployeeController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Updated employee data", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponse.class))
+            description = "Updated employee data", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeUpdateRequest.class))
     )
     @PutMapping(value = "/{id}", produces = "application/json")
     public ResponseEntity<EmployeeResponse> updateEmployee(@PathVariable Long id, @RequestBody EmployeeUpdateRequest request) {
