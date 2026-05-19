@@ -40,6 +40,7 @@ aplicando los principios de DevSecOps.
 ## File -> postman/aws.postman_environment.json
 
 NOTA: usar para probar --> base_url = http://54.191.21.96:8080
+  /example --> carpeta con imagenes de algunas pruebas realizadas
 
 - GET /employees → listar empleados
 - GET /employees/{id} → obtener empleado por ID

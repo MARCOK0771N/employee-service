@@ -1,9 +1,13 @@
 package com.employee.employee.contoller;
 
 import com.employee.employee.dto.*;
+import com.employee.employee.enums.EmployeeFieldsEnum;
 import com.employee.employee.exception.InvalidEmployeeDataException;
 import com.employee.employee.service.EmployeeService;
+import com.employee.employee.utils.Transform;
+import com.employee.employee.utils.ValidationUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,6 +15,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +47,9 @@ public class EmployeeController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
     })
     @GetMapping(produces = "application/json")
-    public List<EmployeeResponse> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    public Page<EmployeeResponse> getAllEmployees(@Parameter(description = "Page number (0 = first)")  @RequestParam(required = false) Integer page, @Parameter(description = "Page size (must be between 1 and 100)") @RequestParam(required = false) Integer size,
+                                                  @Parameter(description = "Sort field:  ID, NAME, SECOND_NAME, LAST_NAME, SECOND_LAST_NAME, GENDER, AGE, BIRTH_DATE, POSITION, CREATION_DATE, ACTIVE") @RequestParam(required = false) String sort, @Parameter(description = "Sort direction: ASC or DESC")  @RequestParam(required = false) String direction) {
+        return employeeService.getAllEmployees(Transform.toPageable(page, size, sort, direction));
     }
 
     @Operation(summary = "Get employee by ID")
@@ -111,7 +120,8 @@ public class EmployeeController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
     })
     @GetMapping(value = "/search", produces = "application/json")
-    public List<EmployeeResponse> searchByName(@RequestParam String name) {
-        return employeeService.searchByName(name);
+    public Page<EmployeeResponse> searchByName(@RequestParam String name, @Parameter(description = "Page number (0 = first)")  @RequestParam(required = false) Integer page, @Parameter(description = "Page size (must be between 1 and 100)") @RequestParam(required = false) Integer size,
+                                               @Parameter(description = "Sort field:  ID, NAME, SECOND_NAME, LAST_NAME, SECOND_LAST_NAME, GENDER, AGE, BIRTH_DATE, POSITION, CREATION_DATE, ACTIVE") @RequestParam(required = false) String sort, @Parameter(description = "Sort direction: ASC or DESC")  @RequestParam(required = false) String direction) {
+        return employeeService.searchByName(name, Transform.toPageable(page, size, sort, direction));
     }
 }

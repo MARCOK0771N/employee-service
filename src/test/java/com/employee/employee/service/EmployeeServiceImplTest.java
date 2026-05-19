@@ -12,6 +12,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -50,26 +54,22 @@ class EmployeeServiceImplTest {
         EmployeeEntity emp1 = new EmployeeEntity();
         emp1.setId(1L);
         emp1.setName("Marco");
-        emp1.setLastName("Hernandez");
-        emp1.setBirthDate(LocalDate.of(1990, 5, 14));
-        emp1.setActive(true);
 
         EmployeeEntity emp2 = new EmployeeEntity();
         emp2.setId(2L);
         emp2.setName("Antonio");
-        emp2.setLastName("Ramirez");
-        emp2.setBirthDate(LocalDate.of(1988, 3, 20));
-        emp2.setActive(true);
 
-        when(repository.findAll()).thenReturn(List.of(emp1, emp2));
+        Page<EmployeeEntity> pageResult = new PageImpl<>(List.of(emp1, emp2));
+        when(repository.findAll(any(Pageable.class))).thenReturn(pageResult);
 
-        List<EmployeeResponse> result = employeeService.getAllEmployees();
+        Page<EmployeeResponse> result = employeeService.getAllEmployees(PageRequest.of(0, 10));
 
-        assertEquals(2, result.size());
-        assertEquals("Marco", result.get(0).getName());
-        assertEquals("Antonio", result.get(1).getName());
-        verify(repository, times(1)).findAll();
+        assertEquals(2, result.getTotalElements());
+        assertEquals("Marco", result.getContent().get(0).getName());
+        assertEquals("Antonio", result.getContent().get(1).getName());
+        verify(repository, times(1)).findAll(any(Pageable.class));
     }
+
 
 
     @Test
@@ -168,23 +168,20 @@ class EmployeeServiceImplTest {
 
     @Test
     void testSearchEmployees_success() {
-        String name = "Marco";
-
         EmployeeEntity emp = new EmployeeEntity();
         emp.setId(1L);
         emp.setName("Marco");
-        emp.setLastName("Hernandez");
-        emp.setBirthDate(LocalDate.of(1990, 5, 14));
-        emp.setActive(true);
 
-        when(repository.findByNameContainingIgnoreCase(name)).thenReturn(List.of(emp));
+        Page<EmployeeEntity> pageResult = new PageImpl<>(List.of(emp));
+        when(repository.findByNameContainingIgnoreCase(eq("Marco"), any(Pageable.class))).thenReturn(pageResult);
 
-        List<EmployeeResponse> result = employeeService.searchByName(name);
+        Page<EmployeeResponse> result = employeeService.searchByName("Marco", PageRequest.of(0, 10));
 
-        assertEquals(1, result.size());
-        assertEquals("Marco", result.get(0).getName());
-        verify(repository, times(1)).findByNameContainingIgnoreCase(name);
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Marco", result.getContent().get(0).getName());
+        verify(repository, times(1)).findByNameContainingIgnoreCase(eq("Marco"), any(Pageable.class));
     }
+
 
     @Test
     void testDeleteEmployee_success() {
@@ -210,12 +207,13 @@ class EmployeeServiceImplTest {
         EmployeeUpdateRequest updated = new EmployeeUpdateRequest();
         updated.setName("Marco");
 
-        when(repository.findById(id)).thenThrow(EmployeeNotFoundException.class);
+        when(repository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(EmployeeNotFoundException.class, () -> employeeService.updateEmployee(id, any(EmployeeUpdateRequest.class)));
+        assertThrows(EmployeeNotFoundException.class, () -> employeeService.updateEmployee(id, updated));
         verify(repository, times(1)).findById(id);
         verify(repository, never()).save(any(EmployeeEntity.class));
     }
+
 
     @Test
     void testDeleteEmployee_notFound() {

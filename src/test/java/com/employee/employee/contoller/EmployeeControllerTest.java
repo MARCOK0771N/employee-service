@@ -6,6 +6,9 @@ import com.employee.employee.service.EmployeeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -24,16 +27,19 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void testGetAllEmployees() {
+    void testGetAllEmployeesWithPagination() {
         EmployeeResponse emp = EmployeeResponse.builder().id(1L).name("Marco").build();
-        when(employeeService.getAllEmployees()).thenReturn(List.of(emp));
+        Page<EmployeeResponse> pageResult = new PageImpl<>(List.of(emp));
 
-        List<EmployeeResponse> result = controller.getAllEmployees();
+        when(employeeService.getAllEmployees(any(Pageable.class))).thenReturn(pageResult);
 
-        assertEquals(1, result.size());
-        assertEquals("Marco", result.get(0).getName());
-        verify(employeeService).getAllEmployees();
+        Page<EmployeeResponse> result = controller.getAllEmployees(0, 10, "NAME", "ASC");
+
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Marco", result.getContent().get(0).getName());
+        verify(employeeService).getAllEmployees(any(Pageable.class));
     }
+
 
     @Test
     void testGetEmployeeById() {
@@ -102,14 +108,17 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void testSearchByName() {
+    void testSearchByNameWithPagination() {
         EmployeeResponse emp = EmployeeResponse.builder().id(1L).name("Marco").build();
-        when(employeeService.searchByName("Marco")).thenReturn(List.of(emp));
+        Page<EmployeeResponse> pageResult = new PageImpl<>(List.of(emp));
 
-        List<EmployeeResponse> result = controller.searchByName("Marco");
+        when(employeeService.searchByName(eq("Marco"), any(Pageable.class))).thenReturn(pageResult);
 
-        assertEquals(1, result.size());
-        assertEquals("Marco", result.get(0).getName());
-        verify(employeeService).searchByName("Marco");
+        Page<EmployeeResponse> result = controller.searchByName("Marco", 0, 10, "NAME", "ASC");
+
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Marco", result.getContent().get(0).getName());
+        verify(employeeService).searchByName(eq("Marco"), any(Pageable.class));
     }
+
 }

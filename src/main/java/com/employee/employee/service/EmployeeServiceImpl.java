@@ -9,6 +9,8 @@ import com.employee.employee.utils.Transform;
 import com.employee.employee.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,11 +30,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<EmployeeResponse> getAllEmployees() {
+    public Page<EmployeeResponse> getAllEmployees(Pageable pageable) {
         log.info(EmployeeConstants.LOG_FETCH_ALL);
-        List<EmployeeEntity> employees = employeeRepository.findAll();
-        log.info("Total employees fetched: {}", employees.size());
-        return employees.stream().map(Transform.toResponse).toList();
+        Page<EmployeeEntity> employees = employeeRepository.findAll(pageable);
+        log.info("Total employees fetched: {}", employees.getTotalElements());
+        return employees.map(Transform.toResponse);
     }
 
     @Transactional(readOnly = true)
@@ -134,8 +136,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<EmployeeResponse> searchByName(String name) {
-        return employeeRepository.findByNameContainingIgnoreCase(name).stream().map(Transform.toResponse).toList();
+    public Page<EmployeeResponse> searchByName(String name, Pageable pageable) {
+        return employeeRepository.findByNameContainingIgnoreCase(name, pageable).map(Transform.toResponse);
     }
 
 }

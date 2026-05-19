@@ -43,9 +43,27 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}",
+          "raw": "{{base_url}}?page=0&size=10&sort=NAME&direction=DES",
           "host": [
             "{{base_url}}"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            },
+            {
+              "key": "sort",
+              "value": "NAME"
+            },
+            {
+              "key": "direction",
+              "value": "DES"
+            }
           ]
         },
         "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
@@ -88,12 +106,12 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/3",
+          "raw": "{{base_url}}/1",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "3"
+            "1"
           ]
         },
         "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
@@ -143,7 +161,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"employees\": [\n        {\n          \"name\": \"Antonio\",\n          \"secondName\": \"Luis\",\n          \"lastName\": \"Ramirez\",\n          \"secondLastName\": \"Hernandez\",\n          \"birthDate\": \"05-11-1990\",\n          \"position\": \"Java Developer\",\n          \"age\": 35,\n          \"gender\": \"Male\",\n          \"active\": true\n        }\n      ]\n}",
+          "raw": "{\n    \"employees\": [\n        {\n          \"name\": \"Marco\",\n          \"secondName\": \"Luis\",\n          \"lastName\": \"Ramirez\",\n          \"secondLastName\": \"Hernandez\",\n          \"birthDate\": \"05-11-1990\",\n          \"position\": \"Java Developer\",\n          \"age\": 35,\n          \"gender\": \"Male\",\n          \"active\": true\n        }, {\n          \"name\": \"Juan\",\n          \"secondName\": \"Luis\",\n          \"lastName\": \"Ramirez\",\n          \"secondLastName\": \"Hernandez\",\n          \"birthDate\": \"05-11-1990\",\n          \"position\": \"Java Developer\",\n          \"age\": 35,\n          \"gender\": \"Male\",\n          \"active\": true\n        }\n      ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -203,7 +221,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"id\": 1,\n            \"name\": \"Antonio\",\n            \"secondName\": \"Luis\",\n            \"lastName\": \"Ramirez\",\n            \"secondLastName\": \"Hernandez\",\n            \"gender\": \"Male\",\n            \"age\": 25,\n            \"birthDate\": \"05-11-1990\",\n            \"position\": \"Java Developer\",\n            \"creationDate\": \"2026-05-18T03:45:22.7172084\",\n            \"active\": true\n      }",
+          "raw": "{\n\n            \"active\": false\n      }",
           "options": {
             "raw": {
               "language": "json"
@@ -318,7 +336,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/search?name=Antonio",
+          "raw": "{{base_url}}/search?name=jose&page=0&size=10&sort=NAME&direction=ASC",
           "host": [
             "{{base_url}}"
           ],
@@ -328,7 +346,23 @@
           "query": [
             {
               "key": "name",
-              "value": "Antonio"
+              "value": "jose"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            },
+            {
+              "key": "sort",
+              "value": "NAME"
+            },
+            {
+              "key": "direction",
+              "value": "ASC"
             }
           ]
         },

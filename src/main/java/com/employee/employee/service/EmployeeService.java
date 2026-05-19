@@ -4,11 +4,14 @@ import com.employee.employee.dto.EmployeeInsertRequest;
 import com.employee.employee.dto.EmployeeInsertResponse;
 import com.employee.employee.dto.EmployeeResponse;
 import com.employee.employee.dto.EmployeeUpdateRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 public interface EmployeeService {
 
-    List<EmployeeResponse> getAllEmployees();
+    Page<EmployeeResponse> getAllEmployees(Pageable pageable);
 
     EmployeeResponse getEmployeeById(Long id);
 
@@ -18,6 +21,6 @@ public interface EmployeeService {
 
     void deleteEmployee(Long id);
 
-    List<EmployeeResponse> searchByName(String name);
+    Page<EmployeeResponse> searchByName(String name, Pageable pageable);
 
 }

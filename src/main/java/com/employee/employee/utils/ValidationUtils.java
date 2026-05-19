@@ -13,6 +13,12 @@ public class ValidationUtils {
 
     public static final UnaryOperator<String> genderValidator = ValidationUtils.regexValidator(GENDER, MSG_GENDER_ERROR);
 
+    public static final UnaryOperator<String> directionValidator = ValidationUtils.regexValidator(DIRECTION, MSG_DIRECTION_ERROR);
+
+    public static final UnaryOperator<String> sortFieldValidator = ValidationUtils.regexValidator(SORT, MSG_SORT_ERROR);
+
+    public static final UnaryOperator<Integer> pageSizeValidator = ValidationUtils.rangeValidator(1, 100, MSG_PAGE_SIZE_ERROR);
+
     public static UnaryOperator<String> regexValidator(String regex, String message) {
         return value -> {
             if (value == null || !value.matches(regex)) {
